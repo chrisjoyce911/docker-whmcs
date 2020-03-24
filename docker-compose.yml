@@ -8,7 +8,7 @@ networks:
   whmcs:
         ipam:
             config:
-             - subnet: 172.218.0.0/24
+             - subnet: ${NETWORK_ADD}.0.0/24
 
 services:
     nginx:
@@ -27,7 +27,7 @@ services:
           - php-fpm
         networks:
           whmcs:
-                ipv4_address: 172.218.0.5
+                ipv4_address: ${NETWORK_ADD}.0.5
 
     php-fpm:
         build:
@@ -43,7 +43,7 @@ services:
           - PHP_IDE_CONFIG=xwhmcs
         networks:
           whmcs:
-                ipv4_address: 172.218.0.2
+                ipv4_address: ${NETWORK_ADD}.0.2
 
     maildev:
         build: ./maildev
@@ -52,7 +52,7 @@ services:
           - "${MAILDEV_SMTP_PORT}:25"
         networks:
           whmcs:
-                ipv4_address: 172.218.0.3
+                ipv4_address: ${NETWORK_ADD}.0.3
 
     mysql:
       build:
@@ -71,5 +71,5 @@ services:
         - "3306:3306"
       networks:
         whmcs:
-              ipv4_address: 172.218.0.4
+              ipv4_address: ${NETWORK_ADD}.0.4
 

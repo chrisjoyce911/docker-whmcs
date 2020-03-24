@@ -35,6 +35,13 @@ Start the container with
 docker-compose up
 ```
 
+If you have change the networking
+
+```
+docker-compose up --force-recreate
+```
+
+
 After building the container, open your browser and browse to the `/install` directory and install it.
 
 WHMCS installation itself may take a while.
