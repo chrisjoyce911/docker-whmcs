@@ -1,68 +1,75 @@
 version: '3'
 
-networks:
-  whmcs:
-    driver: ${NETWORKS_DRIVER}
-
 volumes:
   mysql:
     driver: ${VOLUMES_DRIVER}
 
+networks:
+  whmcs:
+        ipam:
+            config:
+             - subnet: 172.218.0.0/24
+
 services:
-  nginx:
-    build:
-      context: ./nginx
-      args:
-        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
-        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
-    volumes:
-      - ${WHMCS_PATH}:/var/www/html
-      - ./nginx/sites/:/etc/nginx/sites-available
-      - ~/.data/logs-nginx/:/var/log/nginx
-    ports:
-      - ${NGINX_PORT_HTTP}:80
-    depends_on:
-      - php-fpm
-    networks:
-      - whmcs
+    nginx:
+        build:
+          context: ./nginx
+          args:
+            - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+            - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+        volumes:
+          - ${WHMCS_PATH}:/var/www/html
+          - ./nginx/sites/:/etc/nginx/sites-available
+          - ~/.data/logs-nginx/:/var/log/nginx
+        ports:
+          - ${NGINX_PORT_HTTP}:80
+        depends_on:
+          - php-fpm
+        networks:
+          whmcs:
+                ipv4_address: 172.218.0.5
 
-  php-fpm:
-    build:
-      context: ./php-fpm
-      args:
-        - INSTALL_PHP_VERSION=${PHP_VERSION}
-    volumes:
-      - ${WHMCS_PATH}:/var/www/html
-      - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
-    expose:
-      - "9000"
-    environment:
-      - PHP_IDE_CONFIG=xwhmcs
-    networks:
-      - whmcs
+    php-fpm:
+        build:
+          context: ./php-fpm
+          args:
+            - INSTALL_PHP_VERSION=${PHP_VERSION}
+        volumes:
+          - ${WHMCS_PATH}:/var/www/html
+          - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+        expose:
+          - "9000"
+        environment:
+          - PHP_IDE_CONFIG=xwhmcs
+        networks:
+          whmcs:
+                ipv4_address: 172.218.0.2
 
-  maildev:
-    build: ./maildev
-    ports:
-      - "${MAILDEV_HTTP_PORT}:80"
-      - "${MAILDEV_SMTP_PORT}:25"
-    networks:
-      - whmcs
+    maildev:
+        build: ./maildev
+        ports:
+          - "${MAILDEV_HTTP_PORT}:80"
+          - "${MAILDEV_SMTP_PORT}:25"
+        networks:
+          whmcs:
+                ipv4_address: 172.218.0.3
 
-  mysql:
-    build:
-      context: ./mysql
-      args:
-        - MYSQL_VERSION=${MYSQL_VERSION}
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    volumes:
-      - ./.data/mysql:/var/lib/mysql
-      - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-    ports:
-      - "3306:3306"
-    networks:
-      - whmcs
+    mysql:
+      build:
+        context: ./mysql
+        args:
+          - MYSQL_VERSION=${MYSQL_VERSION}
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      volumes:
+        - ./.data/mysql:/var/lib/mysql
+        - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      ports:
+        - "3306:3306"
+      networks:
+        whmcs:
+              ipv4_address: 172.218.0.4
+
