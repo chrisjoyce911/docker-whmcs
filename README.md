@@ -12,7 +12,9 @@ A WHMCS 7.1+ developer environment for docker/docker-compose which is heavily in
 
 ## Installation
 
-Clone this repo with git and copy the _WHMCS_ installation archive to the `./whmcs` directory.
+Clone this repo with git and copy the _[WHMCS](https://download.whmcs.com/ "Download Page")_ installation archive to the `./whmcs` directory.
+
+
 
 ### Requirements
 
